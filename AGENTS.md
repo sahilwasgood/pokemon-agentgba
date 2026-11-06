@@ -11,7 +11,7 @@ this file is the short version. **Read `docs/ARCHITECTURE.md` and
 * Working directory of the running game: `~/pokemon-wot`
 * Playable build: `~/pokemon-wot/Wishes-Game/pokeemerald.gba`
 * Launcher: `~/pokemon-wot/pokemon.sh`
-* This repo's remote is `github.com/sahilwasgood/pokemon-agentgba` (private).
+* This repo's remote is `github.com/sahilwasgood/pokemon-agentgba` (public).
   The upstream fork is `github.com/jmaloney95/Wishes-Game` — fetch from it if you
   need its branch history, but never push there.
 * Pushing the full history over a slow link needs small packs: a single ~465 MiB
