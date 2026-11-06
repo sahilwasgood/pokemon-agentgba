@@ -11,6 +11,11 @@ this file is the short version. **Read `docs/ARCHITECTURE.md` and
 * Working directory of the running game: `~/pokemon-wot`
 * Playable build: `~/pokemon-wot/Wishes-Game/pokeemerald.gba`
 * Launcher: `~/pokemon-wot/pokemon.sh`
+* This repo's remote is `github.com/sahilwasgood/pokemon-agentgba` (private).
+  The upstream fork is `github.com/jmaloney95/Wishes-Game` — fetch from it if you
+  need its branch history, but never push there.
+* Pushing the full history over a slow link needs small packs: a single ~465 MiB
+  push dies with HTTP 408. Push incrementally instead (see "Pushing upstream").
 * Display: `:0`, 1920×1080
 * The researcher/author does not want binary "checkpoint" saves. The ROM's flash
   save (`pokeemerald.sav`) **has never been written** — progress lives in mGBA
@@ -25,6 +30,27 @@ python3 gen_gift.py           # regenerate the gift NPC script
 ```
 
 Toolchain: `arm-none-eabi-gcc` 13.2, `make`, `python3`. No `node`/`npm` needed.
+
+## Pushing upstream
+
+This history is ~465 MiB. One `git push` of it fails — GitHub answers HTTP 408
+and the client hangs on the sideband. Push pack by pack instead, always from a
+target that provably fast-forwards the remote tip:
+
+```bash
+tip=$(git ls-remote origin refs/heads/main | cut -f1)
+mapfile -t cand < <(git rev-list --topo-order --reverse --ancestry-path "$tip"..main)
+# pick a target ~200 commits ahead, but only push it when
+#   git merge-base --is-ancestor "$tip" "$cand[j]"
+# then: git push origin "$sha:refs/heads/main"  and re-read the remote tip
+```
+
+Rules that matter: re-read the remote tip after *every* attempt, because the
+server often accepts the ref while the client reports a disconnect; bound each
+request with `timeout 600 git -c http.lowSpeedLimit=10 -c http.lowSpeedTime=150
+push ...` so a silent stall cannot burn 10 minutes; and shrink the window
+(halve it) whenever a push fails, growing it again after successes. A 200-commit
+window carried most of this history (26 pushes, ~8 min).
 
 ## Facts you must know (or you will corrupt the game)
 
