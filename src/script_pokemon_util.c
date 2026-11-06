@@ -437,6 +437,23 @@ static u32 ScriptGiveMonParameterized(u8 side, u8 slot, u16 species, u8 level, e
         }
     }
 
+    // --- DEV GIFT: max PP. Three PP Ups on every slot (+60%), then refresh the
+    //     current PP so the bar is full. givemon has no PP parameter, so this is
+    //     the only place it can be done. ---
+    {
+        u8 ppBonuses = 0xFF;   // 2 bits per move slot, 3 = all three PP Ups
+        SetMonData(&mon, MON_DATA_PP_BONUSES, &ppBonuses);
+        for (i = 0; i < MAX_MON_MOVES; i++)
+        {
+            u16 move = GetMonData(&mon, MON_DATA_MOVE1 + i);
+            u8 pp;
+            if (move == MOVE_NONE)
+                continue;
+            pp = CalculatePPWithBonus(move, ppBonuses, i);
+            SetMonData(&mon, MON_DATA_PP1 + i, &pp);
+        }
+    }
+
     // ability
     if (abilityNum != NUM_ABILITY_PERSONALITY)
     {

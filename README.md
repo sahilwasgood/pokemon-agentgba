@@ -1,116 +1,149 @@
-# Wishes of Tomorrow
+# Pokemon Wishes of Tomorrow
 
-<!-- PLACEHOLDER FOOTAGE: these three gifs are upstream pokeemerald-expansion
-     engine captures, kept only until Wishes of Tomorrow gameplay gifs are
-     recorded. Replace the three image URLs below and delete this comment. -->
+A **pokeemerald decomp hack** (base: [pret/pokeemerald](https://github.com/pret/pokeemerald)),
+with a custom region, an expanded map set, and a dev gift that hands the player
+a full max-stat legendary party.
 
-![Gif that shows debugging functionality that is unique to pokeemerald-expansion such as rerolling Trainer ID, Cheat Start, PC from Debug Menu, Debug PC Fill, Pokémon Sprite Visualizer, Debug Warp to Map, and Battle Debug Menu](https://github.com/user-attachments/assets/cf9dfbee-4c6b-4bca-8e0a-07f116ef891c) ![Gif that shows overworld functionality that is unique to pokeemerald-expansion such as indoor running, BW2 style map popups, overworld followers, DNA Splicers, Gen 1 style fishing, OW Item descriptions, Quick Run from Battle, Use Last Ball, Wild Double Battles, and Catch from EXP](https://github.com/user-attachments/assets/383af243-0904-4d41-bced-721492fbc48e) ![Gif that shows off a number of modern Pokémon battle mechanics happening in the pokeemerald-expansion engine: 2 vs 1 battles, modern Pokémon, items, moves, abilities, fully customizable opponents and partners, Trainer Slides, and generational gimmicks](https://github.com/user-attachments/assets/50c576bc-415e-4d66-a38f-ad712f3316be)
+> **A note on persistence.** The ROM's flash save has never written a byte
+> (`pokeemerald.sav` stays blank), so in-game progress is **not** saved by the
+> game. Progress is kept in **mGBA savestates** (slot 1), auto-saved every 2
+> minutes and mirrored to several drives. See `~/pokemon-wot/README.md` for the
+> launcher, and the section "Save format" below.
 
-# About
+---
 
-**Wishes of Tomorrow** is a full-length Pokémon ROM hack for the Game Boy Advance — an original region, cast, and three-act campaign built at source level on RHH's [`pokeemerald-expansion`](https://github.com/rh-hideout/pokeemerald-expansion) 1.15.3, itself a C and ARM decompilation of *Pokémon Emerald*. Nothing here is patched into a prebuilt binary: every map, system, and asset is compiled from source, so the engine is part of the deliverable rather than a black box the game sits on top of.
-
-**Status — content complete and play-tested.** All three acts run end to end, followed by a scripted finale, an original credits sequence, Hall-of-Fame save integration, and a post-game chapter. The full campaign and post-game have been played through and verified.
-
-## Engineering summary
-
-| | |
-|---|---|
-| **Languages** | C (ARM7TDMI / GBA), ARMv4T assembly, GBA event-script assembly, Python 3, JSON, GNU Make |
-| **Toolchain** | `arm-none-eabi-gcc` 14.2.1 and `agbcc` under WSL2; parallel Make builds; the `gbagfx` / `mapjson` / `jsonproc` / `aif2pcm` asset pipeline; mGBA 0.10.5 for instrumented testing |
-| **Content tools** | Porymap (maps and event authoring), Porytiles, Poryscript, LibreSprite, VGMTrans (NDS sequence extraction) |
-| **AI-assisted development** | Claude Code as the primary implementation surface — engine work, cutscene scripting, asset pipelines, and build verification — with Claude Design and Claude Cowork for planning and iteration |
-
-**Scale, measured as a diff against the upstream base:** roughly **82,000 inserted lines across 3,434 files**. That breaks down to ~9,000 lines of C and ~4,900 lines of headers implementing engine and gameplay systems, ~33,500 lines of event-script assembly driving cutscenes, dialogue, and quest logic, ~15,800 lines of JSON map and encounter data, and ~2,400 lines of Python tooling. The result builds to a 32 MB cartridge image.
-
-**Custom engine systems** written for this project include a Shadow Pokémon capture-and-purification framework — snag mechanics layered onto the ball-throw path, per-species persistent logging with idempotent save-forward backfill across party and PC boxes, battle-side stat modifiers, and summary-screen status indicators — plus a quest journal with deferred toast notifications, a visual-novel character portrait system bound to a speaker-name table, an HM field-move menu that removes the need for dedicated HM carriers, animated boss intro cards, and a set of scripted-cutscene primitives (detached camera objects, audio-suppressed screen shake, weather and SE muting, pooled particle effects).
-
-**Custom tooling: 30 purpose-built Python utilities.** The largest is a tileset compiler that converts raw RMXP-format art into GBA-legal primary/secondary tileset pairs within the hardware's 512-tile, 7-palette budget. Alongside it: a sprite-import pipeline that colour-merges, quantizes, ground-line-aligns, and indexes 64×64 battle art against vanilla frame geometry, and an NDS-to-GBA music staging pipeline used to import 25 sequenced tracks and 461 direct-sound samples.
-
-**Content shipped:** 64 new maps, 34 new tilesets, 277 new graphics assets, 12 tracked quests, and original trainer rosters and wild-encounter tables spanning the region.
-
-# Features
-
-- **An original region and a three-act story campaign**, from a quiet mountain village through a surveillance city to a finale atop a tower — with an archipelago of post-game islands to surf and fish between.
-- **The Shadow Pokémon system.** Corrupted Pokémon fight harder and defend worse, and can slip into Hyper Mode mid-battle. Steal them from enemy trainers with the Snag Machine, then purify them to keep the offensive edge without the drawbacks.
-- **Snag Balls** — a custom ball with a heavy multiplier against Shadow Pokémon, sold on the black market.
-- **The Shadow Log**, a dedicated field menu tracking every Shadow Pokémon in the game as loose, snagged, or purified, with completion counters for post-game collection.
-- **Quest journal** with a start-menu interface, main and side quest tracking, and on-screen notifications as objectives advance.
-- **Character portraits** during story dialogue, driven by a speaker table so any named NPC can be given a face without touching a script.
-- **Boss encounters** with animated intro cards, custom teams, and scripted set-piece choreography.
-- **Quality-of-life systems:** an HM menu that frees a party slot, custom heal locations and checkpoints, a curio shop for Mega Stones, and Ability Machines.
-- **Custom soundtrack**, sequenced and ported from later-generation Pokémon titles into the GBA's m4a engine, with the mixer widened from 5 to 12 direct-sound channels so field effects survive a busy score.
-- **A post-game chapter** with a legendary encounter, a personal transport system, and a liberated overworld that reflects the ending.
-- Built on **`pokeemerald-expansion`**, so the modern battle engine comes along with it: current-generation Pokémon, moves, abilities, items, and battle gimmicks. See [`FEATURES.md`](FEATURES.md) for that full upstream list.
-
-# Credits
-
-**Wishes of Tomorrow** — a game by **Joe Maloney**. Story, direction, game design, map design, and event scripting.
-
-**Sprite Design**
-Rafael Sanna · aveontrainer · baylorhernandez · biadoxaf · DarkusShadow · jaov46
-
-**Character Art**
-ToxShadows642
-
-**Shadow Sprites**
-pogokitten · WeeGeeDude · Quanyails
-
-**Tileset Art**
-pinkscales · Phyromatical · MagiScarf · PeekyChew · Elinthind · lo8jd · Dark Slayer
-
-**Shin-Tokyo Art**
-Emeiry · *Odisea* by ekat99 — used under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-**Battle Backdrops**
-carchagui (open sea, cave, and the FR-patch Lab/Town/Indoors) · LibertyTwins (space) · aveontrainer (Ashlands savanna, molten summit)
-
-**Music**
-Arranged from the Pokémon soundtracks.
-
-**Playtesting**
-Luke Devereux · Mike Mancuso · Kyle Clarkson
-
-**Special Thanks**
-The spriting community, and every artist who shares their work.
-
-*Rest in Paradise, Connor.*
-
-A **Flatfoot Games** project.
-
-## Built with
-
-This game is built on **RHH (ROM Hacking Hideout)**'s `pokeemerald-expansion`, and would not exist without it or the decompilation it stands on.
-
-```
-Based off RHH's pokeemerald-expansion 1.15.3 https://github.com/rh-hideout/pokeemerald-expansion/
-```
-
-- [**RHH — `pokeemerald-expansion`**](https://github.com/rh-hideout/pokeemerald-expansion) and its [full contributor list](CREDITS.md)
-- [**pret**](https://github.com/pret/pokeemerald) — the `pokeemerald` decompilation project
-- *Pokémon Emerald Version* — GAME FREAK · Nintendo · The Pokémon Company
-
-Third-party asset attributions carried over from the base are listed in [`EXTRACTED_ASSETS_CREDITS.md`](EXTRACTED_ASSETS_CREDITS.md).
-
-# Source assets and design documents
-
-This branch holds the game. The **[`main`](https://github.com/jmaloney95/Emerald-Rom-Hack/tree/main)** branch is the development workspace behind it — separate history, published alongside it:
-
-- **Source art** — sprite sheets, Shadow Pokémon battle art, UI mockups, raw tilesets before they were compiled
-- **The tileset pipeline** — the Python that converts RMXP-format art into GBA-legal primary/secondary tileset pairs
-- **Design documents** — the GDD, story canon, quest plans, the full encounter spreadsheet, and a running development log covering every feature and engine gotcha (*contains story spoilers*)
-- **The music porting process** — how later-generation tracks were sequenced into the GBA's m4a engine
-
-Reuse terms differ by asset — most of the art belongs to the artists credited above, not to this project. See [Reusing this work](https://github.com/jmaloney95/Emerald-Rom-Hack/blob/main/README.md#reusing-this-work) before taking anything.
-
-# Building
-
-❗ Do not use GitHub's "Download ZIP" option — it omits commit history, which is required to merge upstream updates.
-
-Build instructions, toolchain setup, and update guidance live in [`INSTALL.md`](INSTALL.md). In short, from a WSL2 or Linux shell with devkitARM installed:
+## Quick start
 
 ```bash
-make -j8
+sudo apt install gcc-arm-none-eabi make pkg-config
+
+make -j4                 # debug build -> pokeemerald.gba
+make release             # release build (debug menu off)
 ```
 
-This produces `pokeemerald.gba`, playable in mGBA or any accurate GBA emulator.
+Then open the ROM in mGBA (or VBA-M):
+
+```bash
+mgba-qt pokeemerald.gba
+```
+
+In game: **New Game**, then talk to the **DEV NPC** in your bedroom
+(upstairs, Littleroot Town). It hands you the maxed party described in
+[`docs/MODDING.md`](docs/MODDING.md).
+
+## Playing it
+
+```bash
+cd ~/pokemon-wot
+./pokemon.sh start      # mGBA + auto-backup loop, loads the last state
+./pokemon.sh save       # save a state now (also every 2 min automatically)
+./pokemon.sh stop       # save + shut down cleanly
+./pokemon.sh history    # list saved states
+./pokemon.sh status     # what's running, where the save lives
+```
+
+| Keys | Action |
+|---|---|
+| `Shift+F1` / `F1` | save / load emulator state slot 1 |
+| `Ctrl+R` | reset the game |
+| `X` `Z` `Enter` | A / B / Start |
+| `A` `S` | L / R |
+| **`S` + `Enter`** | overworld debug menu (hold R, press Start) |
+| `Select` in battle | battle debug menu |
+
+## The gift
+
+One conversation with the DEV NPC gives you:
+
+* **143 species** — every legendary, mythical and Ultra Beast the hack defines
+  (6 in the party, 137 in the PC boxes)
+* each **Lv100, 31 IVs, 252 EVs in all six stats, neutral nature, max PP**
+* **signature moves first** (Psystrike, Dragon Ascent, Aeroblast, Sacred Fire,
+  Origin Pulse, Precipice Blades, Roar of Time, Sunsteel Strike, Behemoth Blade…)
+  then the strongest STAB/coverage from that species' own learnset
+* **999,999 money** (the cap), Master/Ultra/Great/Quick/Dusk/Net/Timer Balls ×999
+* Full Restore / Max Potion / Max Revive / Max Elixir / Max Ether / Full Heal ×999
+* Pokédex + National Dex + Running Shoes
+* **all 8 badges and all 8 HMs** — so Cut, Flash, Rock Smash, Surf, Strength,
+  Waterfall, Dive and Fly all work immediately
+* **Groudon starts out knowing Cut**
+
+Regenerate it any time: `python3 gen_gift.py && make -j4`.
+
+## The party
+
+| Slot | Pokemon | Moves | Notes |
+|---|---|---|---|
+| 1 | Armored Mewtwo | Psystrike / Future Sight / Thunderbolt / Ice Beam | fastest in the party |
+| 2 | Rayquaza | Dragon Ascent / Extreme Speed / Outrage / Dragon Claw | raw damage pick |
+| 3 | Lugia | Aeroblast / Brave Bird / Future Sight / Double-Edge | special wall |
+| 4 | Ho-Oh | Sacred Fire / Brave Bird / Flare Blitz / Double-Edge | physical wall |
+| 5 | Kyogre | Origin Pulse / Hydro Pump / Thunderbolt / Ice Beam | special attacker |
+| 6 | Groudon | Precipice Blades / Earthquake / Eruption / **Cut** | Cut user |
+
+All four of Mewtwo/Rayquaza/Lugia/Ho-Oh tie at **2059 total** on this build
+(Lv100, 31 IVs, 252 EVs, Hardy).
+
+## Where to go
+
+Starting map: **Munen Village** (custom Munen region, not the standard Emerald
+start).
+
+1. **Munen Tunnel** — Nugget, Max Ether, **TM30 (Shadow Ball)**, **TM24
+   (Thunderbolt)**, and the **Carved Mask**. The mask is gated: you must beat the
+   **Tunnel Captain** first, which sets `FLAG_POMPEII_GENERAL_RETREATED`. The
+   mask is the **Oni Mask** — while worn, Team Mutrid goons don't battle you.
+2. **Ashlands** (Old Prophet's House) — the **Catalpa Bow** item ball, unlocked
+   after the Fentanyl quest line.
+3. **National Park** — boatman to Tradewind Town, two goons (skippable with the
+   Oni Mask), a grave watcher, and the **gravesite**: use the Catalpa Bow from
+   your bag while standing at the grave to cross into the **Distortion World**
+   (the Act 2 story beat). Cross while `VAR_QUEST_FATHERS_WISH == 3` to complete
+   the Grandfather's Wish quest.
+
+Full map data for all 1016 maps: [`docs/maps/INDEX.md`](docs/maps/INDEX.md).
+
+## Modifying it
+
+* [`docs/MODDING.md`](docs/MODDING.md) — how to edit movesets, items, scripts,
+  flags, maps and the gift; and the "don't break the save" rules.
+* [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — build system, core loops,
+  the BoxPokemon encryption + checksum, where everything lives.
+* [`docs/maps/INDEX.md`](docs/maps/INDEX.md) — generated index of every map,
+  its warps, items, trainers and given Pokemon.
+
+**Save format (read this before touching save code).** `pokeemerald.sav` is a
+128 KiB flash image that the game never writes. Progress is kept in mGBA
+savestates instead. Party `BoxPokemon` is stored **encrypted** (`personality ^
+otId` over 12 `u32` at offset 32) and the checksum at offset 28 is the sum over
+the *decrypted* words of `word + (word >> 16)` — get either wrong and the game
+marks the mon a Bad Egg and rewrites it.
+
+## Configuration
+
+All of this is in `include/config/*.h` and `include/constants/global.h`. The
+useful knobs:
+
+| Setting | Where | Effect |
+|---|---|---|
+| `DEBUG_OVERWORLD_MENU` | `include/config/debug.h` | overworld debug menu (R + Start) |
+| `DEBUG_BATTLE_MENU` | `include/config/debug.h` | battle debug menu (Select) |
+| `B_FRIENDSHIP_BOOST` | `include/config/battle.h` | friendship stat boost |
+| `MAX_PER_STAT_EVS` | `include/constants/pokemon.h` | 252 |
+| `MAX_PER_STAT_IVS` | `include/constants/pokemon.h` | 31 |
+| `MAX_MONEY` | `include/money.h` | 999,999 |
+| `MAX_BAG_ITEM_CAPACITY` | `include/constants/items.h` | 999 per stack |
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Short version: edit `map.json` /
+`scripts.inc`, never the generated `events.inc` / `header.inc`; keep mass
+changes inside a generator script so they can be re-run; and always run
+`make -j4` — a build that doesn't compile is a wrong change.
+
+## Credits
+
+Base decomp: [pret/pokeemerald](https://github.com/pret/pokeemerald) —
+see `CREDITS.md` and `FEATURES.md` (the upstream build docs are preserved in
+`README.upstream.md`). Hack-specific content by the ROM's author
+(`Wishes_of_Tomorrow_Story_Canon.md`, `wishes_of_tomorrow_backlog_handoff.md`).
